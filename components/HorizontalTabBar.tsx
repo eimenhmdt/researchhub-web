@@ -19,6 +19,7 @@ export type Tab = {
   isSelected?: boolean;
   icon?: React.ReactNode;
   selectedIcon?: React.ReactNode;
+  hoverIcon?: React.ReactNode;
   pillContent?: React.ReactNode | string;
 };
 
@@ -62,6 +63,8 @@ const HorizontalTabBar = ({
       tab;
     const tabType = href ? "link" : "div";
 
+    const [isHovered, setIsHovered] = useState(false);
+
     const props = {
       key: value,
       className: css(
@@ -81,15 +84,24 @@ const HorizontalTabBar = ({
     };
 
     return (
-      <_WrapperElement type={tabType} props={props} key={value}>
-        <div className={css(styles.tabContentWrapper)}>
-          {isSelected && selectedIcon ? selectedIcon : icon}
-          {label}
-          {pillContent !== undefined && (
-            <div className={css(styles.pillContent)}>{pillContent}</div>
-          )}
-        </div>
-      </_WrapperElement>
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <_WrapperElement type={tabType} props={props} key={value}>
+          <div className={css(styles.tabContentWrapper)}>
+            {isHovered && tab.hoverIcon
+              ? tab.hoverIcon
+              : isSelected && tab.selectedIcon
+              ? tab.selectedIcon
+              : icon}
+            {label}
+            {pillContent !== undefined && (
+              <div className={css(styles.pillContent)}>{pillContent}</div>
+            )}
+          </div>
+        </_WrapperElement>
+      </div>
     );
   };
 
