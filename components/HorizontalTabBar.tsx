@@ -36,10 +36,11 @@ const HorizontalTabBar = ({
   onClick,
   containerStyle,
   tabStyle,
-  variant,
+  variant = "underline",
 }: Props) => {
   const tabContainerEl = useRef<HTMLDivElement>(null);
   const [showRightArrow, setShowRightArrow] = useState(false);
+  const [hoveredTab, setHoveredTab] = useState<any>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,8 +64,6 @@ const HorizontalTabBar = ({
       tab;
     const tabType = href ? "link" : "div";
 
-    const [isHovered, setIsHovered] = useState(false);
-
     const props = {
       key: value,
       className: css(
@@ -85,12 +84,12 @@ const HorizontalTabBar = ({
 
     return (
       <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => setHoveredTab(value)}
+        onMouseLeave={() => setHoveredTab(null)}
       >
         <_WrapperElement type={tabType} props={props} key={value}>
           <div className={css(styles.tabContentWrapper)}>
-            {isHovered && tab.hoverIcon
+            {hoveredTab === value && tab.hoverIcon
               ? tab.hoverIcon
               : isSelected && tab.selectedIcon
               ? tab.selectedIcon
@@ -218,20 +217,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     columnGap: "8px",
   },
-  underlineVariant: {
-    borderBottom: `solid 3px ${colors.GREY()}`,
-    ":hover": {
-      borderBottom: `solid 3px ${colors.GREY()}`,
-      transition: "all 0.2s ease-in-out",
-    },
-  },
   underlineVariantSelected: {
     borderBottom: "solid 3px",
+    color: colors.NEW_BLUE(),
     borderColor: colors.NEW_BLUE(),
   },
   underlineVariantNotSelected: {
+    ":active": {
+      color: `solid 3px ${colors.GREY()}`,
+    },
     ":hover": {
-      color: colors.MEDIUM_GREY(),
+      borderBottom: `solid 3px ${colors.GREY()}`,
       transition: "all 0.2s ease-in-out",
     },
   },
