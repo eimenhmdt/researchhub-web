@@ -48,6 +48,8 @@ import gateKeepCurrentUser from "~/config/gatekeeper/gateKeepCurrentUser";
 import RhTextTag from "~/components/shared/RhTextTag";
 import VerificationModal from "~/components/Verification/VerificationModal";
 import VerifiedBadge from "~/components/Verification/VerifiedBadge";
+import NewPostButton from "~/components/NewPostButton";
+import NewPostModal from "~/components/Modals/NewPostModal";
 
 type Props = {
   openLoginModal: any;
@@ -99,6 +101,23 @@ export const getLeftSidebarItemAttrs = ({
       isActive: ["/hubs"].includes(pathname),
       isMinimized,
       href: "/hubs",
+      onClick: silentEmptyFnc,
+    },
+    {
+      icon: (
+        <img
+          src="/static/rsc-icon-gray.svg"
+          width="24"
+          height="24"
+          style={{
+            marginLeft: "-2px",
+          }}
+        />
+      ),
+      label: "Earn",
+      isActive: ["/grants"].includes(pathname),
+      isMinimized,
+      href: "/grants",
       onClick: silentEmptyFnc,
     },
     {
@@ -256,7 +275,12 @@ function RootLeftSidebar({
       attrs: RootLeftSidebarItemProps,
       ind: number
     ): ReactElement<typeof RootLeftSidebarItem> => (
-      <RootLeftSidebarItem key={`${attrs.label}-${ind}`} {...attrs} />
+      <>
+        {ind === 4 && !isMinimized && (
+          <div className={css(styles.subheader)}>Tools</div>
+        )}
+        <RootLeftSidebarItem key={`${attrs.label}-${ind}`} {...attrs} />
+      </>
     )
   );
 
@@ -330,7 +354,12 @@ function RootLeftSidebar({
     >
       <div className={css(styles.rootLeftSidebarStickyWrap)}>
         <div className={formattedItemsContainer}>
-          <div className={css(styles.leftSidebarItemsInnerContainer)}>
+          <div
+            className={css(
+              styles.leftSidebarItemsInnerContainer,
+              isMinimized && styles.leftSidebarItemsInnerContainerMin
+            )}
+          >
             <div className={css(styles.logoDiv)}>
               <ALink href={"/"} as={`/`} overrideStyle={formattedLogoContainer}>
                 <RHLogo
@@ -364,35 +393,22 @@ function RootLeftSidebar({
                 </AnimatePresence>
               </ALink>
             </div>
+            <NewPostButton
+              customButtonStyle={
+                isMinimized
+                  ? styles.newPostButtonCustomMin
+                  : styles.newPostButtonCustom
+              }
+              isMinimized={isMinimized}
+            />
             {leftSidebarItems}
           </div>
         </div>
         <div className={css(styles.leftSidebarFooter)}>
+          {!isMinimized && (
+            <div className={css(styles.subheader)}>Resources</div>
+          )}
           <div className={css(styles.leftSidebarFooterItemsTop)}>
-            <span className={css(formattedFooterTxtItem)}>
-              <VerificationModal
-                isModalOpen={isVerificationModalOpen}
-                handleModalClose={() => setIsVerificationModalOpen(false)}
-              />
-              <span
-                className={css(styles.referralProgramItem)}
-                onClick={() => setIsVerificationModalOpen(true)}
-              >
-                {isMinimized ? (
-                  "Verify"
-                ) : (
-                  <>
-                    {"Verify Authorship"}
-                    <VerifiedBadge
-                      height={22}
-                      width={22}
-                      variation="grey"
-                      showTooltipOnHover={false}
-                    />
-                  </>
-                )}
-              </span>
-            </span>
             {/* <span className={css(formattedFooterTxtItem)}>
               <InviteButton context={"referral"}>
                 <span className={css(styles.referralProgramItem)}>
@@ -421,11 +437,35 @@ function RootLeftSidebar({
               {"About"}
             </ALink>
             <ALink
-              href="https://researchhub.notion.site/Working-at-ResearchHub-6e0089f0e234407389eb889d342e5049"
+              href="https://researchhub.foundation"
               overrideStyle={formattedFooterTxtItem}
             >
-              {"Jobs"}
+              {isMinimized ? "Comm.." : "Community"}
             </ALink>
+            <span className={css(formattedFooterTxtItem)}>
+              <VerificationModal
+                isModalOpen={isVerificationModalOpen}
+                handleModalClose={() => setIsVerificationModalOpen(false)}
+              />
+              <span
+                className={css(styles.referralProgramItem)}
+                onClick={() => setIsVerificationModalOpen(true)}
+              >
+                {isMinimized ? (
+                  "Verify"
+                ) : (
+                  <>
+                    {"Verify Authorship"}
+                    <VerifiedBadge
+                      height={22}
+                      width={22}
+                      variation="grey"
+                      showTooltipOnHover={false}
+                    />
+                  </>
+                )}
+              </span>
+            </span>
             <ALink
               href="/leaderboard/users"
               overrideStyle={formattedFooterTxtItem}
@@ -433,10 +473,10 @@ function RootLeftSidebar({
               {isMinimized ? "Top" : "Leaderboard"}
             </ALink>
             <ALink
-              href="https://researchhub.foundation"
+              href="https://researchhub.notion.site/Working-at-ResearchHub-6e0089f0e234407389eb889d342e5049"
               overrideStyle={formattedFooterTxtItem}
             >
-              {isMinimized ? "Comm.." : "Community"}
+              {"Jobs"}
             </ALink>
           </div>
           <div className={css(styles.footer)}>
@@ -531,7 +571,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     position: "sticky",
     top: 0,
-    minHeight: "100vh",
+    height: "100vh",
     width: "100%",
   },
   leftSidebarItemsContainer: {
@@ -541,11 +581,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   leftSidebarItemsInnerContainer: {
-    borderBottom: `1px solid ${colors.GREY_BORDER}`,
     boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
     width: "100%",
+  },
+  leftSidebarItemsInnerContainerMin: {
+    paddingBottom: 16,
+    marginBottom: 16,
+    [`@media only screen and (max-width: ${breakpoints.large.str})`]: {
+      borderBottom: `1px solid ${colors.GREY_BORDER}`,
+    },
   },
   leftSidebarFooter: {
     display: "flex",
@@ -559,28 +605,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 400,
     textDecoration: "none",
-    margin: "0 32px 18px",
+    margin: "0 30px 12px",
     ":hover": {
       color: colors.NEW_BLUE(1),
+    },
+    [`@media only screen and (max-height: ${breakpoints.medium.str})`]: {
+      fontSize: 15,
     },
   },
   leftSidebarFooterTxtItemMin: {
     fontSize: 14,
     fontWeight: 300,
-    margin: "8px auto",
+    margin: "0 auto 12px",
   },
   leftSidebarFooterItemsTop: {
     display: "flex",
     flexDirection: "column",
-    paddingTop: 24,
+    paddingTop: 12,
+    [`@media only screen and (max-height: ${breakpoints.medium.str})`]: {
+      paddingTop: 8,
+    },
   },
   leftSidebarFooterItemsBottomRow: {
     alignItems: "center",
     display: "flex",
-    height: 20,
-    marginBottom: 20,
-    justifyContent: "center",
+    padding: "8px 30px",
+    justifyContent: "flex-start",
     width: "100%",
+    [`@media only screen and (max-height: ${breakpoints.medium.str})`]: {
+      padding: "6px 30px",
+    },
   },
   leftSidebarFooterItemsBottomRowMin: { display: "none" },
   referralProgramItem: {
@@ -595,8 +649,12 @@ const styles = StyleSheet.create({
   },
   leftSidebarFooterIcon: {
     fontSize: 18,
-    marginRight: 32,
+    marginRight: 20,
     display: "block",
+    [`@media only screen and (max-height: ${breakpoints.medium.str})`]: {
+      fontSize: 16,
+      marginRight: 16,
+    },
   },
   leftSidebarFooterBotItem: {
     color: colors.TEXT_GREY(1),
@@ -611,7 +669,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "flex-start",
     height: NAVBAR_HEIGHT,
-    marginBottom: 20,
+    marginBottom: 8,
     [`@media only screen and (min-width: ${breakpoints.large.int}px)`]: {
       width: "100%",
     },
@@ -622,12 +680,7 @@ const styles = StyleSheet.create({
   arrowRight: {
     color: "#aaa",
     cursor: "pointer",
-    margin: "auto",
-    marginBottom: 0,
-    padding: 16,
-    [`@media only screen and (max-width: ${breakpoints.large.int}px)`]: {
-      display: "none",
-    },
+    padding: "10px 32px 24px",
   },
   arrowLeft: {
     cursor: "pointer",
@@ -639,7 +692,7 @@ const styles = StyleSheet.create({
     cursor: "pointer",
     display: "flex",
     height: "68px",
-    padding: "0 26px",
+    padding: "0 30px",
     userSelect: "none",
     justifyContent: "flex-start",
     width: "100%",
@@ -665,6 +718,30 @@ const styles = StyleSheet.create({
     },
   },
   mediumIconOverride: { fontSize: 18, marginTop: "-4px" },
+  subheader: {
+    borderTop: `1px solid ${colors.GREY_BORDER}`,
+    marginTop: 12,
+    fontSize: 12,
+    fontWeight: 700,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    color: colors.LIGHT_GREY_TEXT,
+    padding: "16px 30px 12px",
+    [`@media only screen and (max-height: ${breakpoints.medium.str})`]: {
+      padding: "16px 30px 8px",
+      marginTop: 8,
+    },
+  },
+  newPostButtonCustom: {
+    height: 40,
+    margin: "0 auto 12px",
+    width: "calc(100% - 52px)",
+  },
+  newPostButtonCustomMin: {
+    height: 40,
+    margin: "0 auto 12px",
+    width: "calc(100% - 26px)",
+  },
 });
 
 const mapDispatchToProps = {

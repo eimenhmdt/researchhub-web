@@ -21,7 +21,6 @@ import RHLogo from "../RHLogo";
 import RootLeftSidebarSliderItem, {
   Props as RootLeftSidebarSliderItemProps,
 } from "./sidebar_items/RootLeftSidebarSliderItem";
-import InviteButton from "~/components/Referral/InviteButton";
 import NewPostButton from "~/components/NewPostButton";
 import Login from "~/components/Login/Login";
 import Button from "~/components/Form/Button";
@@ -58,7 +57,10 @@ function RootLeftSidebarSlider({
       attrs: RootLeftSidebarSliderItemProps,
       ind: number
     ): ReactElement<typeof RootLeftSidebarSliderItem> => (
-      <RootLeftSidebarSliderItem key={`${attrs.label}-${ind}`} {...attrs} />
+      <>
+        {ind === 4 && <div className={css(styles.subheader)}>Tools</div>}
+        <RootLeftSidebarSliderItem key={`${attrs.label}-${ind}`} {...attrs} />
+      </>
     )
   );
 
@@ -78,8 +80,9 @@ function RootLeftSidebarSlider({
       )}
       {sliderMainItems}
       <div className={css(styles.leftSidebarSliderFooter)}>
+        <div className={css(styles.subheader)}>Resources</div>
         <div className={css(styles.leftSidebarSliderFooterItemsTop)}>
-          {isLoggedIn && (
+          {/* {isLoggedIn && (
             <span
               className={css(styles.leftSidebarSliderFooterTxtItem)}
               onClick={(event: SyntheticEvent): void => {
@@ -89,14 +92,7 @@ function RootLeftSidebarSlider({
             >
               {"Sign out"}
             </span>
-          )}
-          <span className={css(styles.leftSidebarSliderFooterTxtItem)}>
-            <InviteButton context="referral">
-              <span className={css(styles.referralProgramItem)}>
-                {"Invite"}
-              </span>
-            </InviteButton>
-          </span>
+          )} */}
           <ALink
             href="https://docs.researchhub.com"
             target="_blank"
@@ -160,6 +156,22 @@ function RootLeftSidebarSlider({
               {"Help"}
             </ALink>
           </div>
+          {isLoggedIn && (
+            <div className={css(styles.signOutButtonContainer)}>
+              <Button
+                size="med"
+                label="Sign Out"
+                variant="outlined"
+                fullWidth
+                hideRipples={true}
+                customButtonStyle={styles.signOutButtonStyle}
+                onClick={(event: SyntheticEvent): void => {
+                  event.preventDefault();
+                  signout({ walletLink });
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -191,13 +203,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 400,
     textDecoration: "none",
-    margin: "0 0 18px",
+    margin: "0 0 16px",
     ":hover": {
       color: colors.TEXT_GREY(1),
     },
   },
   leftSidebarSliderFooterBotItem: {
     color: colors.TEXT_GREY(1),
+    textAlign: "center",
     fontSize: 14,
     ":hover": {
       color: colors.TEXT_GREY(1),
@@ -207,13 +220,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     display: "flex",
     justifyContent: "space-around",
-    marginBottom: 20,
-    width: 180,
+    marginBottom: 16,
+    width: "100%",
   },
   leftSidebarSliderFooterItemsTop: {
     display: "flex",
     flexDirection: "column",
-    paddingTop: 24,
+    paddingTop: 12,
+    paddingBottom: 16,
   },
   leftSidebarSliderFooterBottom: {
     marginTop: "auto",
@@ -234,12 +248,13 @@ const styles = StyleSheet.create({
     [`@media only screen and (max-width: ${breakpoints.mobile.str})`]: {
       height: 40,
       width: "100%",
+      marginBottom: 12,
     },
   },
   loginButtonWrap: {
     width: "100%",
     display: "flex",
-    marginBottom: 25,
+    marginBottom: 12,
   },
   loginButton: {
     height: "unset",
@@ -269,6 +284,25 @@ const styles = StyleSheet.create({
     // color: colors.ORANGE_DARK2(),
   },
   rhLogoSlider: { width: 148 },
+  subheader: {
+    borderTop: `1px solid ${colors.GREY_BORDER}`,
+    marginTop: 8,
+    fontSize: 12,
+    fontWeight: 700,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    color: colors.LIGHT_GREY_TEXT,
+    padding: "14px 0 8px",
+  },
+  signOutButtonContainer: {
+    marginTop: 8,
+    width: "100%",
+    paddingBottom: 24,
+  },
+  signOutButtonStyle: {
+    background: "transparent",
+    backgroundColor: "transparent",
+  },
 });
 
 const mapStateToProps = (state) => ({
